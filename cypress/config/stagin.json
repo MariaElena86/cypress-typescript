@@ -1,0 +1,4 @@
+{
+    "baseUrl": "https://staging-frontend.fanatyx.com/",
+    "apiUrl" : "https://main--fanatyx.apollographos.net/graphql"
+}

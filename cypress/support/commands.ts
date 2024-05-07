@@ -1,37 +1,76 @@
-/// <reference types="cypress" />
-// ***********************************************
-// This example commands.ts shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-//
-// declare global {
-//   namespace Cypress {
-//     interface Chainable {
-//       login(email: string, password: string): Chainable<void>
-//       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
-//     }
-//   }
-// }
+declare global {
+  namespace Cypress {
+    interface Chainable<Subject> {
+      registerbyEmail(value: string): Chainable<any>;
+      registerbyPnoneNumber(value: string): Chainable<any>;
+      stubGraphQlRequest(opName: string, response: string): Chainable<any>;
+      stubWithFixtureGraphQlRequest(opName: string, fixtureName: string): Chainable<any>;
+      getByDataCy(value: string): Chainable<any>;
+    }
+  }
+}
+
+Cypress.Commands.add("getByDataCy", (selector) => {
+  console.log("SELECTOR: "+`[data-cy=${selector}]`)
+  return cy.get(`[data-cy=${selector}]`)
+})
+
+Cypress.Commands.add('registerbyEmail', (input: string) => {
+  
+
+  cy.get('.cursor-pointer.pt-2').then((field) => {
+    expect(field[0]).to.have.text('Connect with your email')
+    expect(field['selector']).eq('.cursor-pointer.pt-2')
+  }).click()
+
+  cy.get('#identifier').type(`${input}`)
+  cy.get('[type="submit"]').click()
+
+})
+
+Cypress.Commands.add('registerbyPnoneNumber', (input: string) => {
+
+  cy.get('.font-bold.leading-5').contains('Connect with phone number')
+  cy.get('.iti__flag-container [aria-label="Telephone country code"]').click();
+
+  cy.get('[data-dial-code="359"]').then((field) => {
+    expect(field.children()[1]).to.have.class("iti__country-name")
+    expect(field.children()[1]).to.have.text("Bulgaria")
+    expect(field.children()[2]).to.have.class("iti__dial-code")
+    expect(field.children()[2]).to.have.text("+359")
+  }).click()
+
+  cy.get('#identifier').type(`${input}`)
+  //cy.get('[type="submit"]').click()
+  
+})
+
+
+Cypress.Commands.add('stubGraphQlRequest', (opName: string, response: String) => {
+  cy.intercept('POST', Cypress.env('apiUrl'), (req) => {
+    if (req.body.operationName === opName) {
+      req.reply({
+        statusCode: 200,
+        body: response
+      });
+      req.alias = opName
+    }
+
+  })
+})
+
+Cypress.Commands.add('stubWithFixtureGraphQlRequest', (opName: string, fixture: String) => {
+  cy.intercept('POST', Cypress.env('apiUrl'), (req) => {
+    if (req.body.operationName === opName) {
+      req.reply({
+        statusCode: 200,
+        fixture: fixture
+      });
+      req.alias = opName
+    }
+
+  })
+})
+
+
+
