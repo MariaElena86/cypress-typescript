@@ -41,7 +41,7 @@ Cypress.Commands.add('registerbyPnoneNumber', (input: string) => {
   }).click()
 
   cy.get('#identifier').type(`${input}`)
-  //cy.get('[type="submit"]').click()
+  cy.get('[type="submit"]').click()
   
 })
 
