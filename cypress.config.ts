@@ -21,6 +21,6 @@ export default defineConfig({
       return config
     },
 
-    baseUrl: 'https://www.fanatyx.com/'
+    baseUrl: 'https://www.secretsy.com/'
   },
 });
